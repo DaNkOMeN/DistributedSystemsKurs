@@ -1,5 +1,3 @@
-/home/danko/KursVolkov/ClearMicroservice/src/main/java/org/acme/rest/json/LoggingFilter.java
-/home/danko/KursVolkov/ClearMicroservice/src/main/java/org/acme/rest/json/Fruit.java
-/home/danko/KursVolkov/ClearMicroservice/src/main/java/org/acme/rest/json/LegumeResource.java
-/home/danko/KursVolkov/ClearMicroservice/src/main/java/org/acme/rest/json/Legume.java
-/home/danko/KursVolkov/ClearMicroservice/src/main/java/org/acme/rest/json/FruitResource.java
+/home/danko/KursVolkov/PriceListService/src/main/java/beans/PriceListItem.java
+/home/danko/KursVolkov/PriceListService/src/main/java/service/PriceListResource.java
+/home/danko/KursVolkov/PriceListService/src/main/java/beans/ResourceType.java

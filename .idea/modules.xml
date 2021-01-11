@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ClearMicroservice/rest-json-quickstart.iml" filepath="$PROJECT_DIR$/ClearMicroservice/rest-json-quickstart.iml" />
+      <module fileurl="file://$PROJECT_DIR$/EventsService/EventService.iml" filepath="$PROJECT_DIR$/EventsService/EventService.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PriceListService/PriceListService.iml" filepath="$PROJECT_DIR$/PriceListService/PriceListService.iml" />
+      <module fileurl="file://$PROJECT_DIR$/RequestService/RequestService.iml" filepath="$PROJECT_DIR$/RequestService/RequestService.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ResourceCatalogService/ResourceCataogService.iml" filepath="$PROJECT_DIR$/ResourceCatalogService/ResourceCataogService.iml" />
     </modules>
   </component>
 </project>

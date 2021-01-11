@@ -6,11 +6,21 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="rest-json-quickstart" />
+        <module name="ResourceCataogService" />
+        <module name="EventService" />
+        <module name="PriceListService" />
+        <module name="RequestService" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="EventService" target="1.8" />
+      <module name="PriceListService" target="1.8" />
+      <module name="RequestService" target="1.8" />
+      <module name="RequestService1" target="1.8" />
+      <module name="ResourceCatalogService" target="1.8" />
+      <module name="ResourceCataogService" target="1.8" />
       <module name="rest-json-quickstart" target="1.8" />
+      <module name="rest-json-quickstart (2)" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
