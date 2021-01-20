@@ -1,7 +1,14 @@
 package beans;
 
-//Элемент прайслиста
-public class PriceListItem {
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
+
+import javax.persistence.Cacheable;
+import javax.persistence.Entity;
+
+//Элемент прайслист
+@Entity
+@Cacheable
+public class PriceListItem extends PanacheEntity {
 
     private int res_id;
     private String res_name;
@@ -21,12 +28,6 @@ public class PriceListItem {
     }
 
     public PriceListItem() {
-        this.res_id = 1;
-        this.res_name = "res_name";
-        this.res_price = 12;
-        this.res_max_count = 123;
-        this.res_type = ResourceType.STAR;
-        this.res_description = "res_description";
     }
 
     public int getRes_id() {
