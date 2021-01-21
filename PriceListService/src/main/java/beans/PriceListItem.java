@@ -10,16 +10,14 @@ import javax.persistence.Entity;
 @Cacheable
 public class PriceListItem extends PanacheEntity {
 
-    private int res_id;
     private String res_name;
     private int res_price;
-    private int res_max_count;
+    private Integer res_max_count;
     private ResourceType res_type;
     private String res_description;
 
-    public PriceListItem(int res_id, String res_name, int res_price, int res_max_count,
+    public PriceListItem(String res_name, int res_price, int res_max_count,
                          ResourceType res_type, String res_description) {
-        this.res_id = res_id;
         this.res_name = res_name;
         this.res_price = res_price;
         this.res_max_count = res_max_count;
@@ -28,14 +26,6 @@ public class PriceListItem extends PanacheEntity {
     }
 
     public PriceListItem() {
-    }
-
-    public int getRes_id() {
-        return res_id;
-    }
-
-    public void setRes_id(int res_id) {
-        this.res_id = res_id;
     }
 
     public String getRes_name() {
@@ -54,11 +44,11 @@ public class PriceListItem extends PanacheEntity {
         this.res_price = res_price;
     }
 
-    public int getRes_max_count() {
+    public Integer getRes_max_count() {
         return res_max_count;
     }
 
-    public void setRes_max_count(int res_max_count) {
+    public void setRes_max_count(Integer res_max_count) {
         this.res_max_count = res_max_count;
     }
 

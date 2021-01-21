@@ -1,58 +1,63 @@
 package resources;
 
 
+import beans.OrderItem;
 import beans.PriceListItem;
 import beans.ResourceType;
+import beans.ResponseItem;
 import service.PriceListService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
-import java.util.ArrayList;
+
 import java.util.List;
 
 @Path("/priceList")
 @RequestScoped
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
+
 public class PriceListResource {
 
     @Inject
     PriceListService priceListService;
 
     @GET
-    @Path("single")
-    public PriceListItem getPriceListItem(){
-        return new PriceListItem(1, "Jija", 10, 10, ResourceType.SPACE, "Jija perjija");
+    @Path("getPriceList")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<PriceListItem> getPriceList(){
+       return priceListService.getPriceList();
     }
 
     @GET
-    @Path("many")
-    public List<PriceListItem> getManyPriceListItem(){
-        return priceListService.getPriceListItemList();
+    @Path("getPriceListAsFile")
+    @Produces(MediaType.MULTIPART_FORM_DATA)
+    public File getManyPriceListItem(){
+        return priceListService.getPriceListAsFile();
+    }
 
+
+    @POST
+    @Path("createOrder")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseItem createOrder(List<OrderItem> orderItems){
+        if (orderItems != null) {
+            return priceListService.confirmOrder(orderItems);
+        } else {
+            return new ResponseItem(false, "Order items is null");
+        }
     }
 
     @POST
-    @Path("add")
+    @Path("testAdd")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Transactional
-    public List<PriceListItem> addPriceListItem(PriceListItem item){
-        if (item.id != null) {
-            throw new WebApplicationException("Id was invalidly set on request.", 422);
-        }
-        item.persist();
-        return PriceListItem.listAll();
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseItem addPriceListItem(PriceListItem item){
+        return priceListService.addPriceListItem(item);
     }
 
-    @GET
-    @Path("priceListAsFile")
-    public File getPriceListAsFile(){
-        return new File("Asd");
-    }
 
 }
