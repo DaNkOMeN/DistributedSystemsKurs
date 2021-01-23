@@ -10,61 +10,72 @@ import javax.persistence.Entity;
 @Cacheable
 public class PriceListItem extends PanacheEntity {
 
-    private String res_name;
-    private int res_price;
-    private Integer res_max_count;
-    private ResourceType res_type;
-    private String res_description;
+    private String resName; //назавание ресурса
+    private int resPrice;  //цена ресурса
+    private Integer resMaxCount; //максимальное количество ресурса
+    private ResourceType resType; //тип ресурса
+    private String resDescription; //описание ресурса
+    private int resExtraCharge; //наценка
 
-    public PriceListItem(String res_name, int res_price, int res_max_count,
-                         ResourceType res_type, String res_description) {
-        this.res_name = res_name;
-        this.res_price = res_price;
-        this.res_max_count = res_max_count;
-        this.res_type = res_type;
-        this.res_description = res_description;
+    public PriceListItem(String resName, int resPrice, int resMaxCount,
+                         ResourceType resType, String resDescription, int resExtraCharge) {
+        this.resName = resName;
+        this.resPrice = resPrice;
+        this.resMaxCount = resMaxCount;
+        this.resType = resType;
+        this.resDescription = resDescription;
+        this.resExtraCharge = 1;
     }
 
     public PriceListItem() {
     }
 
-    public String getRes_name() {
-        return res_name;
+
+    public int getResExtraCharge() {
+        return resExtraCharge;
     }
 
-    public void setRes_name(String res_name) {
-        this.res_name = res_name;
+    public void setResExtraCharge(int res_extra_charge) {
+        this.resExtraCharge = res_extra_charge;
     }
 
-    public int getRes_price() {
-        return res_price;
+    public String getResName() {
+        return resName;
     }
 
-    public void setRes_price(int res_price) {
-        this.res_price = res_price;
+    public void setResName(String resName) {
+        this.resName = resName;
     }
 
-    public Integer getRes_max_count() {
-        return res_max_count;
+    public int getResPrice() {
+        return resPrice;
     }
 
-    public void setRes_max_count(Integer res_max_count) {
-        this.res_max_count = res_max_count;
+    public void setResPrice(int res_price) {
+        this.resPrice = res_price;
     }
 
-    public ResourceType getRes_type() {
-        return res_type;
+    public Integer getResMaxCount() {
+        return resMaxCount;
     }
 
-    public void setRes_type(ResourceType res_type) {
-        this.res_type = res_type;
+    public void setResMaxCount(Integer res_max_count) {
+        this.resMaxCount = res_max_count;
     }
 
-    public String getRes_description() {
-        return res_description;
+    public ResourceType getResType() {
+        return resType;
     }
 
-    public void setRes_description(String res_description) {
-        this.res_description = res_description;
+    public void setResType(ResourceType res_type) {
+        this.resType = res_type;
+    }
+
+    public String getResDescription() {
+        return resDescription;
+    }
+
+    public void setResDescription(String res_description) {
+        this.resDescription = res_description;
     }
 }

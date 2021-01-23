@@ -1,17 +1,15 @@
 package service;
 
-import beans.OrderItem;
-import beans.PriceListItem;
-import beans.ResourceType;
-import beans.ResponseItem;
+import beans.*;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
+import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class PriceListService {
@@ -37,7 +35,7 @@ public class PriceListService {
            PriceListItem findedItem = PriceListItem.findById((Long)orderItem.getRes_id().longValue());
            if (findedItem != null) {
                //если мы такой ресурс нашли, то проверяем количество доступных на данный момент ресурсов
-                if (orderItem.getRes_count() > findedItem.getRes_max_count()) {
+                if (orderItem.getRes_count() > findedItem.getResMaxCount()) {
                     //если попросили больше чем есть (мало ли), тогда говорим что низя
                     contains = false;
                 }
@@ -51,7 +49,7 @@ public class PriceListService {
             //то проходим по всем элементам в бд и уменьшаем их кол-во
             for (OrderItem orderItem: orderItems) {
                 PriceListItem findedItem = PriceListItem.findById((Long)orderItem.getRes_id().longValue());
-                findedItem.setRes_max_count( findedItem.getRes_max_count() - orderItem.getRes_count());
+                findedItem.setResMaxCount( findedItem.getResMaxCount() - orderItem.getRes_count());
                 findedItem.persist();
             }
             //возвращаем что збс
@@ -76,17 +74,17 @@ public class PriceListService {
             writer.write("------------------------------------------------------------------------------------------");
             writer.append('\n');
             for (PriceListItem listItem: getPriceList()){
-                writer.write("Наименование ресурса: " + listItem.getRes_name());
+                writer.write("Наименование ресурса: " + listItem.getResName());
                 writer.append('\n');
-                writer.write("Цена ресурса: " + listItem.getRes_price());
+                writer.write("Цена ресурса: " + listItem.getResPrice());
                 writer.append('\n');
-                writer.write("Максимальное количество ресурса: " + listItem.getRes_max_count());
+                writer.write("Максимальное количество ресурса: " + listItem.getResMaxCount());
                 writer.append('\n');
-                writer.write("Тип ресурса " + listItem.getRes_type().name());
+                writer.write("Тип ресурса " + listItem.getResType().name());
                 writer.append('\n');
                 writer.write("Описание ресурса: ");
                 writer.append('\n');
-                writer.write(listItem.getRes_description());
+                writer.write(listItem.getResDescription());
             }
             writer.flush();
 
@@ -95,4 +93,46 @@ public class PriceListService {
         }
         return returnedFile;
     }
+
+    @Transactional
+    public Response extraChargeItems(List<ExtraChargeItem> items) {
+        List<PriceListItem> priceListItems =  PriceListItem.listAll().stream().map(it -> (PriceListItem)it).collect(Collectors.toList());
+        for (PriceListItem priceListItem : priceListItems) {
+            for (ExtraChargeItem item : items) {
+               if (priceListItem.getResType().name().equals(item.getRes_type_name())){
+                   priceListItem.setResExtraCharge(item.getRes_extra_charge());
+               }
+            }
+        }
+        return Response.ok().build();
+    }
+
+    @Transactional
+    public Response addInBasket(BasketPriceListItem basketItem) {
+        basketItem.persist();
+        return Response.ok().build();
+    }
+
+    @Transactional
+    public Response deleteInBasket(BasketPriceListItem basketItem) {
+        basketItem.delete();
+        return Response.ok().build();
+    }
+
+    public Response updateInBasket(BasketPriceListItem basketItem) {
+
+        List<BasketPriceListItem> basketPriceListItems = BasketPriceListItem.listAll().stream().map(item -> (BasketPriceListItem)item).collect(Collectors.toList());
+        for (BasketPriceListItem item: basketPriceListItems){
+            if      (item.getResName().equals(basketItem.getResName()) &&
+                    item.getResDescription().equals(basketItem.getResDescription()) &&
+                    item.getResPrice() == basketItem.getResPrice() &&
+                    item.getResMaxCount().equals(basketItem.getResMaxCount()) ) {
+                item.setCurrentCount(basketItem.getCurrentCount());
+                item.persist();
+                return Response.ok().build();
+            }
+        }
+        return Response.notModified("Cant find basketitem").build();
+    }
+
 }

@@ -1,10 +1,7 @@
 package resources;
 
 
-import beans.OrderItem;
-import beans.PriceListItem;
-import beans.ResourceType;
-import beans.ResponseItem;
+import beans.*;
 import service.PriceListService;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -12,13 +9,13 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.File;
 
 import java.util.List;
 
 @Path("/priceList")
 @RequestScoped
-
 public class PriceListResource {
 
     @Inject
@@ -57,6 +54,54 @@ public class PriceListResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ResponseItem addPriceListItem(PriceListItem item){
         return priceListService.addPriceListItem(item);
+    }
+
+
+    @POST
+    @Path("extraCharge")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response extraChargeItems(List<ExtraChargeItem> items){
+        if (items!= null || !items.isEmpty()){
+            return priceListService.extraChargeItems(items);
+        }
+        return Response.notModified("Items is null or empty").build();
+    }
+
+
+    //dobavlenie elementa v korziny
+
+    @POST
+    @Path("addInBasket")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addInBasket(BasketPriceListItem basketItem){
+        if (basketItem != null) {
+            return priceListService.addInBasket(basketItem);
+        }
+        return Response.notModified("BasketItem is null").build();
+    }
+
+    @POST
+    @Path("deleteInBasket")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addDeleteBasket(BasketPriceListItem basketItem){
+        if (basketItem != null) {
+            return priceListService.deleteInBasket(basketItem);
+        }
+        return Response.notModified("BasketItem is null").build();
+    }
+
+    @POST
+    @Path("updateInBasket")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addUpdateBasket(BasketPriceListItem basketItem){
+        if (basketItem != null) {
+            return priceListService.updateInBasket(basketItem);
+        }
+        return Response.notModified("BasketItem is null").build();
     }
 
 
