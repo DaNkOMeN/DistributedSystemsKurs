@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class PriceListService {
+public class CatalogService {
 
-    public PriceListService(){
+    public CatalogService(){
 
     }
 

@@ -33,7 +33,7 @@ public class OfferingResourse {
     @Path("getOfferingToPage")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"admin", "customer"})
+    @RolesAllowed({"angular-admin", "angular-customer"})
     public List<Offering> getOfferingToPage(OfferingRequest request){
         if (request != null) {
             return service.getOfferingToPage(identity, request);
@@ -70,6 +70,7 @@ public class OfferingResourse {
     @Path("deleteOffering")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"admin", "customer"})
     public Response deleteOffering(Offering offering) {
         if (offering != null) return service.deleteOffering(offering);
         return Response.notModified("Request is null").build();
@@ -79,6 +80,7 @@ public class OfferingResourse {
     @Path("updateOffering")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"admin", "customer"})
     public Response updateOffering(Offering offering) {
         if (offering != null) return service.updateOffering(offering);
         return Response.notModified("Request is null").build();

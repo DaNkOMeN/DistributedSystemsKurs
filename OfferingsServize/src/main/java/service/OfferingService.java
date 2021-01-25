@@ -73,6 +73,7 @@ public class OfferingService {
         return Offering.listAll().stream().map(it -> ((Offering) it).getCustomerName()).distinct().collect(Collectors.toList());
     }
 
+    @Transactional
     public List<Offering> getOfferingToPage(SecurityIdentity identity, OfferingRequest request) {
         if (identity.getRoles().contains("angular-admin")) {
             String customer = request.getCustomer();
