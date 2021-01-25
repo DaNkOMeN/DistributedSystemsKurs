@@ -12,7 +12,7 @@ public class Offering extends PanacheEntity {
     private String offeringDescription;
     private int offeringMaxCount;
     private boolean offeringStatus;
-    private OfferingType offeringType;
+    private String offeringType;
 
     public Offering() {
         this.customerName = "noname";
@@ -20,10 +20,10 @@ public class Offering extends PanacheEntity {
         this.offeringName =  "noname";
         this.offeringStatus = false;
         this.offeringMaxCount = 0;
-        this.offeringType = OfferingType.DECORATION;
+        this.offeringType = "Something";
     }
 
-    public Offering(String customerName, String offeringName, String offeringDescription, int offeringMaxCount, boolean offeringStatus, OfferingType offeringType) {
+    public Offering(String customerName, String offeringName, String offeringDescription, int offeringMaxCount, boolean offeringStatus, String offeringType) {
         this.customerName = customerName;
         this.offeringName = offeringName;
         this.offeringDescription = offeringDescription;
@@ -72,11 +72,11 @@ public class Offering extends PanacheEntity {
         this.offeringStatus = offering_status;
     }
 
-    public OfferingType getOfferingType() {
+    public String getOfferingType() {
         return offeringType;
     }
 
-    public void setOfferingType(OfferingType offeringType) {
+    public void setOfferingType(String offeringType) {
         this.offeringType = offeringType;
     }
 
