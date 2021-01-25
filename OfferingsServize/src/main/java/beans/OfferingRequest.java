@@ -2,63 +2,44 @@ package beans;
 
 public class OfferingRequest {
 
+    private String customer; //chi offeringi
+    private int offeringCount; // kolvo-na stranitsu
+    private int pageNumber; // dlya kakoy stranitsy
 
 
-//    private JsonWebToken token;
-//    private Offering offering;
-//
-//    public OfferingRequest(JsonWebToken token, Offering offering) {
-//        this.token = token;
-//        this.offering = offering;
-//    }
-//
-//    public OfferingRequest() {
-//        this.token = null;
-//        this.offering = new Offering();
-//    }
-//
-//    public JsonWebToken getToken() {
-//        return token;
-//    }
-//
-//    public void setToken(JsonWebToken token) {
-//        this.token = token;
-//    }
-//
-//    public Offering getOffering() {
-//        return offering;
-//    }
-//
-//    public void setOffering(Offering offering) {
-//        this.offering = offering;
-//    }
-//
-    private String token;
-    private Offering offering;
-
-    public OfferingRequest(String token, Offering offering) {
-        this.token = token;
-        this.offering = offering;
+    public OfferingRequest(String customer, int offeringCount, int pageNumber) {
+        this.customer = customer;
+        this.offeringCount = offeringCount;
+        this.pageNumber = pageNumber;
     }
 
     public OfferingRequest() {
-        this.token = null;
-        this.offering = new Offering();
+        this.customer = "default";
+        this.offeringCount = 0;
+        this.pageNumber = 0;
     }
 
-    public String getToken() {
-        return token;
+    public int getOfferingCount() {
+        return offeringCount;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setOfferingCount(int offeringCount) {
+        this.offeringCount = offeringCount;
     }
 
-    public Offering getOffering() {
-        return offering;
+    public int getPageNumber() {
+        return pageNumber;
     }
 
-    public void setOffering(Offering offering) {
-        this.offering = offering;
+    public void setPageNumber(int pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
+    public String getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(String customer) {
+        this.customer = customer;
     }
 }

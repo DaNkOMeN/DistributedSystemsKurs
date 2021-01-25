@@ -7,65 +7,77 @@ import javax.persistence.Entity;
 @Entity
 public class Offering extends PanacheEntity {
 
-    private String customer_name;
-    private String offering_name;
-    private String offering_description;
-    private int offering_max_count;
-    private boolean offering_status;
+    private String customerName;
+    private String offeringName;
+    private String offeringDescription;
+    private int offeringMaxCount;
+    private boolean offeringStatus;
+    private OfferingType offeringType;
 
     public Offering() {
-        this.customer_name = "noname";
-        this.offering_description = "something";
-        this.offering_name =  "noname";
-        this.offering_status = false;
-        this.offering_max_count = 0;
+        this.customerName = "noname";
+        this.offeringDescription = "something";
+        this.offeringName =  "noname";
+        this.offeringStatus = false;
+        this.offeringMaxCount = 0;
+        this.offeringType = OfferingType.DECORATION;
     }
 
-    public Offering(String customer_name, String offering_name, String offering_description, int offering_max_count, boolean offering_status) {
-        this.customer_name = customer_name;
-        this.offering_name = offering_name;
-        this.offering_description = offering_description;
-        this.offering_max_count = offering_max_count;
-        this.offering_status = offering_status;
+    public Offering(String customerName, String offeringName, String offeringDescription, int offeringMaxCount, boolean offeringStatus, OfferingType offeringType) {
+        this.customerName = customerName;
+        this.offeringName = offeringName;
+        this.offeringDescription = offeringDescription;
+        this.offeringMaxCount = offeringMaxCount;
+        this.offeringStatus = offeringStatus;
+        this.offeringType = offeringType;
     }
 
-    public String getCustomer_name() {
-        return customer_name;
+    public String getCustomerName() {
+        return customerName;
     }
 
-    public void setCustomer_name(String customer_name) {
-        this.customer_name = customer_name;
+    public void setCustomerName(String customer_name) {
+        this.customerName = customer_name;
     }
 
-    public String getOffering_name() {
-        return offering_name;
+    public String getOfferingName() {
+        return offeringName;
     }
 
-    public void setOffering_name(String offering_name) {
-        this.offering_name = offering_name;
+    public void setOfferingName(String offering_name) {
+        this.offeringName = offering_name;
     }
 
-    public String getOffering_description() {
-        return offering_description;
+    public String getOfferingDescription() {
+        return offeringDescription;
     }
 
-    public void setOffering_description(String offering_description) {
-        this.offering_description = offering_description;
+    public void setOfferingDescription(String offering_description) {
+        this.offeringDescription = offering_description;
     }
 
-    public int getOffering_max_count() {
-        return offering_max_count;
+    public int getOfferingMaxCount() {
+        return offeringMaxCount;
     }
 
-    public void setOffering_max_count(int offering_max_count) {
-        this.offering_max_count = offering_max_count;
+    public void setOfferingMaxCount(int offering_max_count) {
+        this.offeringMaxCount = offering_max_count;
     }
 
-    public boolean isOffering_status() {
-        return offering_status;
+    public boolean isOfferingStatus() {
+        return offeringStatus;
     }
 
-    public void setOffering_status(boolean offering_status) {
-        this.offering_status = offering_status;
+    public void setOfferingStatus(boolean offering_status) {
+        this.offeringStatus = offering_status;
     }
+
+    public OfferingType getOfferingType() {
+        return offeringType;
+    }
+
+    public void setOfferingType(OfferingType offeringType) {
+        this.offeringType = offeringType;
+    }
+
 }

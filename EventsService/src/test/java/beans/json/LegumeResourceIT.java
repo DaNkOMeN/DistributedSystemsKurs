@@ -1,4 +1,4 @@
-package org.acme.rest.json;
+package beans.json;
 
 import io.quarkus.test.junit.NativeImageTest;
 
