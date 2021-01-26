@@ -10,8 +10,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.File;
 
 import java.util.List;
 
@@ -20,113 +18,75 @@ import java.util.List;
 public class CatalogResource {
 
     @Inject
-    CatalogService catalogService;
-
-    @Inject
     SecurityIdentity identity;
 
-    @POST
-    @Path("addItemInOrder")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Inject
+    CatalogService catalogService;
+
+    @GET
+    @Path("hello")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Offering hello() {
+        return new Offering();
+    }
+
+    @GET
+    @Path("getOfferingToPageWithCheat")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("angular-admin")
+    public List<Offering> getOfferingToPageWithCheat() {
+        return catalogService.getOfferingToPageWithCheat();
+    }
+
+    @GET
+    @Path("getOfferingsFromBD")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("angular-buyer")
-    public Response addItemInOrder(){
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-    @GET
-    @Path("getPriceList")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<PriceListItem> getPriceList(){
-       return catalogService.getPriceList();
+    public List<Offering> getOfferingFromBD() {
+        return catalogService.getOfferingsFromBD();
     }
 
     @GET
-    @Path("getPriceListAsFile")
-    @Produces(MediaType.MULTIPART_FORM_DATA)
-    public File getManyPriceListItem(){
-        return catalogService.getPriceListAsFile();
-    }
-
-
-    @POST
-    @Path("createOrder")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("getTotalByBuyer")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseItem createOrder(List<OrderItem> orderItems){
-        if (orderItems != null) {
-            return catalogService.confirmOrder(orderItems);
-        } else {
-            return new ResponseItem(false, "Order items is null");
-        }
+    @RolesAllowed("angular-buyer")
+    public BasketTotal getBasketTotalByBuyer() {
+        return catalogService.getBasketTotalByBuyer(identity);
     }
 
     @POST
-    @Path("testAdd")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("addItemToBasket")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseItem addPriceListItem(PriceListItem item){
-        return catalogService.addPriceListItem(item);
-    }
-
-
-    @POST
-    @Path("extraCharge")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response extraChargeItems(List<ExtraChargeItem> items){
-        if (items!= null || !items.isEmpty()){
-            return catalogService.extraChargeItems(items);
-        }
-        return Response.notModified("Items is null or empty").build();
-    }
-
-
-    //dobavlenie elementa v korziny
-
-    @POST
-    @Path("addInBasket")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response addInBasket(BasketPriceListItem basketItem){
-        if (basketItem != null) {
-            return catalogService.addInBasket(basketItem);
-        }
-        return Response.notModified("BasketItem is null").build();
+    @RolesAllowed("angular-buyer")
+    public BasketTotal addItemToBasket(Offering offering) {
+        return catalogService.addItemToBasket(offering, identity.getPrincipal().getName());
     }
 
     @POST
-    @Path("deleteInBasket")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("updateItemInBasket")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addDeleteBasket(BasketPriceListItem basketItem){
-        if (basketItem != null) {
-            return catalogService.deleteInBasket(basketItem);
-        }
-        return Response.notModified("BasketItem is null").build();
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed("angular-buyer")
+    public BasketTotal updateItemInBasket(BasketItem item) {
+        return catalogService.updateItemInBasket(item, identity);
     }
 
     @POST
-    @Path("updateInBasket")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("deleteItemFromBasket")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addUpdateBasket(BasketPriceListItem basketItem){
-        if (basketItem != null) {
-            return catalogService.updateInBasket(basketItem);
-        }
-        return Response.notModified("BasketItem is null").build();
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed("angular-buyer")
+    public BasketTotal deleteItemFromBasket(BasketItem basketItem) {
+        return catalogService.deleteItemFromBasket(basketItem);
     }
 
+    @GET
+    @Path("getBuyersBasket")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("angular-buyer")
+    public List<BasketItem> getBuyersBasket() {
+        return catalogService.getBuyersBasket(identity.getPrincipal().getName());
+    }
 
 }

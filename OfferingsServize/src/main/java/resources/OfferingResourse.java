@@ -1,6 +1,7 @@
 package resources;
 
 
+import beans.CheatForType;
 import beans.Filter;
 import beans.Offering;
 import beans.OfferingRequest;
@@ -13,6 +14,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 
 @Path("/offering")
@@ -40,6 +42,41 @@ public class OfferingResourse {
         }
     }
 
+
+    @POST
+    @Path("addCheating")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"angular-admin"})
+    public Response addCheatingForTypes(CheatForType cheat) {
+        if (cheat != null) {
+            return service.addCheating(cheat);
+        } else {
+            return Response.notModified("Cant add cheats").build();
+        }
+    }
+
+
+    @POST
+    @Path("getOfferingToPageWithCheat")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+//    @RolesAllowed("angular-admin")
+    public List<Offering> getOfferingToPageWithCheat(OfferingRequest request){
+        if (request != null) {
+            return service.getOfferingToPageWithCheat(identity, request);
+        } else {
+            return null;
+        }
+    }
+
+    @GET
+    @Path("getAllOfferings")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public List<Offering> getAllOffering(){
+        return service.getAllOfferings();
+    }
 
     @POST
     @Path("getOfferingToPage")
@@ -110,7 +147,7 @@ public class OfferingResourse {
     @Path("allResourseTypes")
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> getAllResourceTypes(){
-        return service.getResourcesTypes();
+        return new ArrayList<String>(){{ add("Звезда"); add("Место"); add("Услуга"); add("Машина");add("Укрошение");}};
     }
 
     @GET

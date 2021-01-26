@@ -1,138 +1,95 @@
 package service;
 
 import beans.*;
+import io.quarkus.security.identity.SecurityIdentity;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
-import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class CatalogService {
 
-    public CatalogService(){
 
-    }
+    @Inject
+    @RestClient
+    OfferingService offeringService;
 
-    @Transactional
-    public ResponseItem addPriceListItem(PriceListItem item){
-        item.persist();
-        return new ResponseItem(true," Success");
-    }
 
     @Transactional
-    public ResponseItem confirmOrder(List<OrderItem> orderItems){
-        List<PriceListItem> priceListItems = getPriceList();
-        //проверяем, достаточное ли количество ресурсов из тех, что заказано
-        boolean contains = true;
-        //идем по всем ресурсам из запроса
-        for (OrderItem orderItem: orderItems) {
-            //ищем ресурс с айдишником из запроса
-           PriceListItem findedItem = PriceListItem.findById((Long)orderItem.getRes_id().longValue());
-           if (findedItem != null) {
-               //если мы такой ресурс нашли, то проверяем количество доступных на данный момент ресурсов
-                if (orderItem.getRes_count() > findedItem.getResMaxCount()) {
-                    //если попросили больше чем есть (мало ли), тогда говорим что низя
-                    contains = false;
-                }
-           } else {
-               //а если вообще ресурса с таким id не нашло, то абдыщ
-               throw new RuntimeException("Несуществующий ресурс");
-           }
+    public List<Offering> getOfferingToPageWithCheat() {
+        List<Offering> offeringsFromService = offeringService.getAllOffering();
+        Offering.deleteAll();
+        for (Offering off: offeringsFromService) {
+            off.id = null;
+            off.persist();
         }
-        //если количество запрашиваемых элементов збс
-        if (contains) {
-            //то проходим по всем элементам в бд и уменьшаем их кол-во
-            for (OrderItem orderItem: orderItems) {
-                PriceListItem findedItem = PriceListItem.findById((Long)orderItem.getRes_id().longValue());
-                findedItem.setResMaxCount( findedItem.getResMaxCount() - orderItem.getRes_count());
-                findedItem.persist();
-            }
-            //возвращаем что збс
-            return new ResponseItem(true, "Success");
+        return offeringsFromService;
+    }
+
+    @Transactional
+    public List<Offering> getOfferingsFromBD() {
+       return Offering.listAll().stream().map(off -> (Offering)off).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public BasketTotal addItemToBasket(Offering offering, String buyerName) {
+        List<BasketItem> buyersItem = BasketItem.listAll().stream().map(item -> (BasketItem)item).filter(item -> Objects.equals(item.getBuyer(), buyerName)).collect(Collectors.toList());
+        BasketItem foundedItem = buyersItem.stream().filter(item -> offeringInBasket(offering, item)).findFirst().orElse(null);
+        if (foundedItem != null) {
+            foundedItem.setCount(foundedItem.getCount() + 1);
+            foundedItem.persist();
         } else {
-            //если не содержит то груст
-            return new ResponseItem(false, "Not success");
+            BasketItem newItem = new BasketItem(offering, buyerName);
+            newItem.persist();
         }
+        BasketTotal bt = new BasketTotal(buyerName);
+        return bt;
+    }
+
+    @Transactional
+    public List<BasketItem> getBuyersBasket(String buyerName){
+        return BasketItem.listAll().stream().map(item -> (BasketItem)item).filter(item -> Objects.equals(item.getBuyer(), buyerName)).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public BasketTotal deleteItemFromBasket(BasketItem basketItem) {
+        String buyerName = basketItem.getBuyer();
+        BasketItem.deleteById(basketItem.id);
+        return new BasketTotal(buyerName);
+    }
+
+    public static boolean offeringInBasket(Offering offering, BasketItem basketItem){
+        return Objects.equals(offering.getCustomerName(), basketItem.getCustomerName()) &&
+                Objects.equals(offering.getOfferingName(), basketItem.getOfferingName()) &&
+                Objects.equals(offering.getOfferingPrice(), basketItem.getOfferingPrice()) &&
+                Objects.equals(offering.isOfferingStatus(), basketItem.isOfferingStatus()) &&
+                Objects.equals(offering.getOfferingDescription(), basketItem.getOfferingDescription()) &&
+                Objects.equals(offering.getOfferingMaxCount(), basketItem.getOfferingMaxCount());
     }
 
 
     @Transactional
-    public List<PriceListItem> getPriceList() {
-        return PriceListItem.listAll();
-    }
-
-    public File getPriceListAsFile(){
-        File returnedFile = new File("result.txt");
-        try (FileWriter writer = new FileWriter(returnedFile, false)){
-            writer.write("Список всех доступных ресурсов");
-            writer.append('\n');
-            writer.write("------------------------------------------------------------------------------------------");
-            writer.append('\n');
-            for (PriceListItem listItem: getPriceList()){
-                writer.write("Наименование ресурса: " + listItem.getResName());
-                writer.append('\n');
-                writer.write("Цена ресурса: " + listItem.getResPrice());
-                writer.append('\n');
-                writer.write("Максимальное количество ресурса: " + listItem.getResMaxCount());
-                writer.append('\n');
-                writer.write("Тип ресурса " + listItem.getResType().name());
-                writer.append('\n');
-                writer.write("Описание ресурса: ");
-                writer.append('\n');
-                writer.write(listItem.getResDescription());
-            }
-            writer.flush();
-
-        }catch (IOException ex){
-            ex.printStackTrace();
-        }
-        return returnedFile;
+    public BasketTotal getBasketTotalByBuyer(SecurityIdentity identity) {
+        return new BasketTotal(identity.getPrincipal().getName());
     }
 
     @Transactional
-    public Response extraChargeItems(List<ExtraChargeItem> items) {
-        List<PriceListItem> priceListItems =  PriceListItem.listAll().stream().map(it -> (PriceListItem)it).collect(Collectors.toList());
-        for (PriceListItem priceListItem : priceListItems) {
-            for (ExtraChargeItem item : items) {
-               if (priceListItem.getResType().name().equals(item.getRes_type_name())){
-                   priceListItem.setResExtraCharge(item.getRes_extra_charge());
-               }
-            }
+    public BasketTotal updateItemInBasket(BasketItem item, SecurityIdentity identity ) {
+        if (item.getCount() == 0) {
+            return deleteItemFromBasket(item);
         }
-        return Response.ok().build();
-    }
-
-    @Transactional
-    public Response addInBasket(BasketPriceListItem basketItem) {
-        basketItem.persist();
-        return Response.ok().build();
-    }
-
-    @Transactional
-    public Response deleteInBasket(BasketPriceListItem basketItem) {
-        basketItem.delete();
-        return Response.ok().build();
-    }
-
-    public Response updateInBasket(BasketPriceListItem basketItem) {
-
-        List<BasketPriceListItem> basketPriceListItems = BasketPriceListItem.listAll().stream().map(item -> (BasketPriceListItem)item).collect(Collectors.toList());
-        for (BasketPriceListItem item: basketPriceListItems){
-            if      (item.getResName().equals(basketItem.getResName()) &&
-                    item.getResDescription().equals(basketItem.getResDescription()) &&
-                    item.getResPrice() == basketItem.getResPrice() &&
-                    item.getResMaxCount().equals(basketItem.getResMaxCount()) ) {
-                item.setCurrentCount(basketItem.getCurrentCount());
-                item.persist();
-                return Response.ok().build();
-            }
+        BasketItem basketItem = BasketItem.findById(item.id);
+        if (item != null) {
+            basketItem.setCount(item.getCount());
+            basketItem.persist();
+            return new BasketTotal(identity.getPrincipal().getName());
+        } else {
+            return null;
         }
-        return Response.notModified("Cant find basketitem").build();
     }
-
 }

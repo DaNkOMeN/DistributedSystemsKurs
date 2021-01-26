@@ -1,11 +1,13 @@
 package service;
 
+import beans.CheatForType;
 import beans.Filter;
 import beans.Offering;
 import beans.OfferingRequest;
 import io.quarkus.security.identity.SecurityIdentity;
 import org.jboss.jandex.Index;
 
+import javax.annotation.processing.Filer;
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 public class OfferingService {
 
 
-    public OfferingService(){
+    public OfferingService() {
 
     }
 
@@ -47,12 +49,13 @@ public class OfferingService {
     public Response updateOffering(Offering offering) {
         long id = offering.id;
         Offering founded = Offering.findById(id);
-        if (founded != null){
+        if (founded != null) {
             founded.setOfferingName(offering.getOfferingName());
             founded.setOfferingStatus(offering.isOfferingStatus());
             founded.setOfferingDescription(offering.getOfferingDescription());
             founded.setOfferingMaxCount(offering.getOfferingMaxCount());
             founded.setOfferingType(offering.getOfferingType());
+            founded.setOfferingPrice(offering.getOfferingPrice());
             founded.persist();
             return Response.ok().build();
         }
@@ -60,69 +63,45 @@ public class OfferingService {
     }
 
     @Transactional
-    public long getOfferingsCountAll(){
+    public long getOfferingsCountAll() {
         return Offering.count();
     }
 
     @Transactional
     public long getOfferingCountByCustomer(SecurityIdentity identity) {
-        return Offering.listAll().stream().map(it -> (Offering)it).filter(it -> it.getCustomerName().equals(identity.getPrincipal().getName())).count();
+        return Offering.listAll().stream().map(it -> (Offering) it).filter(it -> it.getCustomerName().equals(identity.getPrincipal().getName())).count();
     }
 
     @Transactional
-    public List<String> getResourcesTypes(){
-        return Offering.listAll().stream().map(it -> ((Offering) it).getOfferingType().toString()).distinct().collect(Collectors.toList());
-    }
-
-    @Transactional
-    public List<String> getAllCustomers(){
+    public List<String> getAllCustomers() {
         return Offering.listAll().stream().map(it -> ((Offering) it).getCustomerName()).distinct().collect(Collectors.toList());
     }
 
-    @Transactional
-    public List<Offering> getOfferingToPage(SecurityIdentity identity, OfferingRequest request) {
-        if (identity.getRoles().contains("angular-admin")) {
-            String customer = request.getCustomer();
-            int offeringCount = request.getOfferingCount();
-            int pageNumber = request.getPageNumber();
-            if (customer != null) {
-                return getOfferings(customer, offeringCount, pageNumber);
-            } else {
-                try {
-                    return Offering.listAll().stream().map(off -> (Offering) off).collect(Collectors.toList())
-                            .subList(pageNumber * offeringCount, (pageNumber + 1) * offeringCount);
-                } catch (IndexOutOfBoundsException ex) {
-                    List<Offering> offerings = Offering.listAll().stream().map(off -> (Offering) off).collect(Collectors.toList());
-                    int count = offerings.size();
-                    if (count <= pageNumber * offeringCount) return null;
-                    else return offerings.subList(pageNumber * offeringCount, count - pageNumber * offeringCount);
-                }
-            }
-        } else {
-            if (identity.getRoles().contains("angular-customer")) {
-                String customer = identity.getPrincipal().getName();
-                int offeringCount = request.getOfferingCount();
-                int pageNumber = request.getPageNumber();
-                if (customer != null) {
 
-                    return getOfferings(customer, offeringCount, pageNumber);
-                }
+    @Transactional
+    public List<Offering> getOfferingToPageWithCheat(SecurityIdentity identity, OfferingRequest request) {
+        List<Offering> allOfferings = new ArrayList<>();
+        for (Offering jopa : getOfferingToPage(identity, request)) {
+            if (jopa.getOfferingMaxCount() >= 1) {
+                allOfferings.add(new Offering(jopa));
             }
         }
-        return null;
+        return prepareForCheating(allOfferings);
     }
 
-    private List<Offering> getOfferings(String customer, int offeringCount, int pageNumber) {
-        try {
-            return Offering.listAll().stream().map(off -> (Offering) off).filter(off -> off.getCustomerName().equals(customer))
-                    .collect(Collectors.toList()).subList(pageNumber * offeringCount, (pageNumber + 1) * offeringCount);
-        } catch (IndexOutOfBoundsException ex) {
-            List<Offering> offerings = Offering.listAll().stream().map(off -> (Offering) off).filter(off -> off.getCustomerName().equals(customer))
-                    .collect(Collectors.toList());
-            int count = offerings.size();
-            if (count <= pageNumber * offeringCount) return null;
-            else return offerings.subList(pageNumber * offeringCount, count - pageNumber * offeringCount);
+
+    @Transactional
+    private List<Offering> prepareForCheating(List<Offering> preparedOfferings) {
+        List<Offering> result = new ArrayList<>(preparedOfferings);
+        List<CheatForType> cheats = CheatForType.listAll().stream().map(ch -> (CheatForType) ch).collect(Collectors.toList());
+        for (Offering off : result) {
+            for (CheatForType cheat : cheats) {
+                if (Objects.equals(cheat.getOfferingType(), off.getOfferingType())) {
+                    off.setOfferingPrice(off.getOfferingPrice() + off.getOfferingPrice() * cheat.getCheatPercent() / 100);
+                }
+            }
         }
+        return result;
     }
 
     @Transactional
@@ -132,9 +111,42 @@ public class OfferingService {
         List<Offering> allOfferings = Offering.listAll().stream().map(off -> (Offering) off).collect(Collectors.toList());
         if (offeringType != null && !offeringType.isEmpty() && customerName != null && !customerName.isEmpty()) {
             return allOfferings.stream().filter(off -> Objects.equals(off.getOfferingType(), offeringType) && Objects.equals(off.getCustomerName(), customerName)).collect(Collectors.toList());
-        } else if (offeringType == null || offeringType.isEmpty()) {
+        } else if ((offeringType == null || offeringType.isEmpty()) && (customerName != null && !customerName.isEmpty())) {
             return allOfferings.stream().filter(off -> Objects.equals(off.getCustomerName(), customerName)).collect(Collectors.toList());
-        } else
+        } else if ((customerName == null || customerName.isEmpty()) && (offeringType != null && !offeringType.isEmpty())) {
             return allOfferings.stream().filter(off -> Objects.equals(off.getOfferingType(), offeringType)).collect(Collectors.toList());
+        } else return allOfferings;
+    }
+
+    @Transactional
+    public List<Offering> getOfferingToPage(SecurityIdentity identity, OfferingRequest request) {
+        Filter filter = new Filter(request.getCustomer(), request.getOfferingType());
+        List<Offering> offeringList = getFilteredOffering(filter);
+        int pageNumber = request.getPageNumber();
+        int offeringCount = request.getOfferingCount();
+        try {
+            return offeringList.subList(pageNumber * offeringCount, (pageNumber + 1) * offeringCount);
+        } catch (IndexOutOfBoundsException ex) {
+            int count = offeringList.size();
+            if (count <= pageNumber * offeringCount) return null;
+            else return offeringList.subList(pageNumber * offeringCount, count - pageNumber * offeringCount);
+        }
+    }
+
+    @Transactional
+    public Response addCheating(CheatForType cheat) {
+        CheatForType cheatForType = CheatForType.listAll().stream().map(ch -> (CheatForType) ch).filter(ch -> ch.getOfferingType().equals(cheat.getOfferingType())).findAny().orElse(null);
+        if (cheatForType != null) {
+            cheatForType.setCheatPercent(cheat.getCheatPercent());
+            cheatForType.persist();
+        } else {
+            cheat.persist();
+        }
+        return Response.ok().build();
+    }
+
+    @Transactional
+    public List<Offering> getAllOfferings() {
+        return prepareForCheating(Offering.listAll().stream().map(off -> (Offering) off).filter(offer -> offer.getOfferingMaxCount() > 0).collect(Collectors.toList()));
     }
 }

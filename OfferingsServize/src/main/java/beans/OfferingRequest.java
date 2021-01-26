@@ -5,18 +5,30 @@ public class OfferingRequest {
     private String customer; //chi offeringi
     private int offeringCount; // kolvo-na stranitsu
     private int pageNumber; // dlya kakoy stranitsy
+    private String offeringType;
 
 
-    public OfferingRequest(String customer, int offeringCount, int pageNumber) {
+    public OfferingRequest(String customer, int offeringCount, int pageNumber,  String offeringType) {
         this.customer = customer;
         this.offeringCount = offeringCount;
         this.pageNumber = pageNumber;
+        this.offeringType = offeringType;
     }
 
     public OfferingRequest() {
-        this.customer = "default";
+        this.customer = null;
         this.offeringCount = 0;
         this.pageNumber = 0;
+        this.offeringType = null;
+    }
+
+
+    public String getOfferingType() {
+        return offeringType;
+    }
+
+    public void setOfferingType(String offeringType) {
+        this.offeringType = offeringType;
     }
 
     public int getOfferingCount() {
