@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Path("/priceList")
@@ -87,6 +88,20 @@ public class CatalogResource {
     @RolesAllowed("angular-buyer")
     public List<BasketItem> getBuyersBasket() {
         return catalogService.getBuyersBasket(identity.getPrincipal().getName());
+    }
+
+    @GET
+    @Path("allCustomers")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<String> getAllCustomers(){
+        return catalogService.getAllCustomers();
+    }
+
+    @GET
+    @Path("allResourseTypes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<String> getAllResourceTypes(){
+        return new ArrayList<String>(){{ add("Звезда"); add("Место"); add("Услуга"); add("Машина");add("Укрошение");}};
     }
 
 }

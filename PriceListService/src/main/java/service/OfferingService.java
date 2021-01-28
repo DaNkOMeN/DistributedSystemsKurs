@@ -19,4 +19,5 @@ public interface OfferingService {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("angular-admin")
     List<Offering> getAllOffering();
+
 }

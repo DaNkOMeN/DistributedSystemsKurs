@@ -7,6 +7,11 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -61,6 +66,11 @@ public class CatalogService {
         String buyerName = basketItem.getBuyer();
         BasketItem.deleteById(basketItem.id);
         return new BasketTotal(buyerName);
+    }
+
+    @Transactional
+    public List<String> getAllCustomers() {
+        return Offering.listAll().stream().map(it -> ((Offering) it).getCustomerName()).distinct().collect(Collectors.toList());
     }
 
     public static boolean offeringInBasket(Offering offering, BasketItem basketItem){

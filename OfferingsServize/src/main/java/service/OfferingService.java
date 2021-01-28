@@ -120,7 +120,14 @@ public class OfferingService {
 
     @Transactional
     public List<Offering> getOfferingToPage(SecurityIdentity identity, OfferingRequest request) {
-        Filter filter = new Filter(request.getCustomer(), request.getOfferingType());
+        String customer;
+        String type = request.getOfferingType();
+        if (identity.hasRole("angular-admin")) {
+            customer = request.getCustomer();
+        } else {
+            customer = identity.getPrincipal().getName();
+        }
+        Filter filter = new Filter(customer, type);
         List<Offering> offeringList = getFilteredOffering(filter);
         int pageNumber = request.getPageNumber();
         int offeringCount = request.getOfferingCount();
